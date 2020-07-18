@@ -8,15 +8,15 @@
     read y 
 
 #Make sure the tar file is present.
-executablestest=$(ls executables.tar.gz)
-                   if [[ "$executablestest" != "executables.tar.gz" ]]; then	
+    executablestest=$(ls executables.tar.gz)
+                   if [[ "$executablestest" != "executables.tar.gz" ]]; then
                         echo -e "\e[96m The file executables.tar.gz was not found in the same directory as the install script SSH. \e[39m"
                         echo -e "\e[96m Please resolve and run the script again. \e[39m"
                         exit
                     fi
 
 #install sshpas
-sudo apt-get install -y sshpass
+   sudo yum install -y sshpass
 
 #Get password for postgres
     echo -e "\e[96m Please enter the password for the database.  \e[39m"
@@ -55,7 +55,7 @@ sudo apt-get install -y sshpass
             read -s sspass2         
         done
 
-export SSHPASS="$sspass1"
+        export SSHPASS="$sspass1"
 
 # Check for Ping reachablility
     for address in "${ipaddresses[@]}"
@@ -72,7 +72,7 @@ export SSHPASS="$sspass1"
 
          done
 
-	 echo -e "\e[96m Success! All devices rechable via ping. Continuing. \e[39m"
+     echo -e "\e[96m Success! All devices rechable via ping. Continuing. \e[39m"
      sleep 2
 
 # Check for SSH reachablility
@@ -150,7 +150,7 @@ export SSHPASS="$sspass1"
 	echo -e "\e[96m Starting master's install. \e[39m"
 
 #update system
-    sudo apt-get update
+    sudo yum update -y
 #create directory structure
     sudo mkdir /opt/sliceup
     sudo mkdir /opt/sliceup/scripts
@@ -160,15 +160,13 @@ export SSHPASS="$sspass1"
     cuser=$(whoami)
     sudo chown -R $cuser /opt/sliceup
 
-
-
-	sudo rm workerinstall.sh
-	sudo rm workerstart.sh
-	sudo rm sliceworker.service
-	sudo mv masterstart.sh /opt/sliceup/scripts/masterstart.sh
-	sudo mv masterinstall.sh /opt/sliceup/scripts/masterinstall.sh
-	sudo chmod +x /opt/sliceup/scripts/masterstart.sh
-	sudo mv slicemaster.service /etc/systemd/system/slicemaster.service
+   sudo rm workerinstall.sh
+   sudo rm workerstart.sh
+   sudo rm sliceworker.service
+   sudo mv masterstart.sh /opt/sliceup/scripts/masterstart.sh
+   sudo mv masterinstall.sh /opt/sliceup/scripts/masterinstall.sh
+   sudo chmod +x /opt/sliceup/scripts/masterstart.sh
+   sudo mv slicemaster.service /etc/systemd/system/slicemaster.service
 	
 
 # begin install
@@ -178,56 +176,59 @@ export SSHPASS="$sspass1"
     echo -e "\e[96m Extract Files and install JAVA  \e[39m"
     sudo tar -xvzf executables.tar.gz --directory /opt/sliceup/
     #sudo chmod -R a+r /opt/sliceup
-    sudo apt install openjdk-11-jre-headless -y
-    sudo apt install openjdk-11-jdk-headless -y
+    sudo yum install java-11-openjdk -y
+    sudo yum install java-11-openjdk-headless -y
 
 #changing curl --proto '=https' --tlsv1.2 -sSf https://sh.vector.dev | sh
     echo -e "\e[96m Install Vector and Postgres  \e[39m"
-    curl --proto '=https' --tlsv1.2 -O https://packages.timber.io/vector/0.9.X/vector-amd64.deb
-    sudo dpkg -i vector-amd64.deb
+    curl --proto '=https' --tlsv1.2 -O https://packages.timber.io/vector/0.9.X/vector-x86_64.rpm
+    sudo rpm -i vector-x86_64.rpm
     sudo systemctl start vector
-    sudo apt install postgresql-client -y
-    sudo apt install postgresql -y
+    sudo yum install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm -y
+    sudo yum install postgresql10-server postgresql10-contrib postgresql10-devel -y
+    sudo /usr/pgsql-10/bin/postgresql-10-setup initdb
+    sudo systemctl start postgresql-10
+    sudo ln -s /usr/pgsql-10/bin/pg_config /usr/sbin/pg_config
     sleep 10
 
 #create variable requires config for sliceupdev
     echo -e "\e[96m Config Postgres.  \e[39m"
-    sudo -u postgres psql -c "CREATE USER sliceup WITH PASSWORD '$psqlpass';"
-    sudo -u postgres psql -c "ALTER ROLE sliceup WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN NOREPLICATION NOBYPASSRLS;"
-    sudo -u postgres psql -c "CREATE DATABASE sliceup"
-    sudo -u postgres psql sliceup < /opt/sliceup/executables/db_migration/sourcedb.sql
+    sudo -i -u postgres psql -c "CREATE USER sliceup WITH PASSWORD '$psqlpass';"
+    sudo -i -u postgres psql -c "ALTER ROLE sliceup WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN NOREPLICATION NOBYPASSRLS;"
+    sudo -i -u postgres psql -c "CREATE DATABASE sliceup"
+    sudo -i -u postgres psql sliceup < /opt/sliceup/executables/db_migration/sourcedb.sql
 
 #Lock this down and standardize install
 
-    sudo sed -i "s/#listen_addresses.*/listen_addresses = '*'/" /etc/postgresql/10/main/postgresql.conf
+    sudo sed -i "s/#listen_addresses.*/listen_addresses = '*'/" /var/lib/pgsql/10/data/postgresql.conf
    
 
 # take user entered IP addresses and create hba config
     for address in "${ipaddresses[@]}"
     do
         line="host    all             all             $address\/32            md5"
-        sudo sed -i "s/# IPv4 local connections:/# IPv4 local connections:\n$line/" /etc/postgresql/10/main/pg_hba.conf
+        sudo sed -i "s/# IPv4 local connections:/# IPv4 local connections:\n$line/" /var/lib/pgsql/10/data/pg_hba.conf
     done
 
     line="host    all             all             $masterip\/32            md5"
-    sudo sed -i "s/# IPv4 local connections:/# IPv4 local connections:\n$line/" /etc/postgresql/10/main/pg_hba.conf
+    sudo sed -i "s/# IPv4 local connections:/# IPv4 local connections:\n$line/" /var/lib/pgsql/10/data/pg_hba.conf
 
 
     echo -e "\e[96m Install additonal supporting files.  \e[39m"
 
-    sudo systemctl restart postgresql
-    sudo apt-get install libpq-dev -y
-    sudo apt-get install python-dev -y
-    sudo apt-get install python3-dev -y
-    sudo apt-get install build-essential -y
-    sudo apt-get install build-essential autoconf libtool pkg-config python-opengl python-pil python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt
+    sudo systemctl restart postgresql-10
+    sudo yum install python-devel -y
+    sudo yum install python3-devel -y
+    sudo yum groupinstall 'Development Tools' -y
+    sudo yum install PyOpenGL libtool autoconf pkgconfig python-pillow qt-devel python-tools python-pyside python2-pyside python36-pyside qt4-devel -y
+    #sudo apt-get install build-essential autoconf libtool pkg-config python-opengl python-pil python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt
 4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev -y
-    sudo apt install python3-pip -y
-    python3 -m pip install psycopg2
-    python3 -m pip install requests
-    python3 -m pip install PrettyTable
-    python3 -m pip install selenium
-    python3 -m pip install kafka-python
+    sudo yum install python3-pip -y
+    sudo python3 -m pip install psycopg2
+    sudo python3 -m pip install requests
+    sudo python3 -m pip install PrettyTable
+    sudo python3 -m pip install selenium
+    sudo python3 -m pip install kafka-python
 
 
     echo -e "\e[96m Replace variable information in configs  \e[39m"
@@ -238,8 +239,8 @@ export SSHPASS="$sspass1"
     sudo sed -i "s/{MASTER_IP}/$masterip/" /opt/sliceup/executables/kafka_2.12-2.4.1/config/server-4.properties
 
 # Ensure Permissions
-                cuser=$(whoami)
-                sudo chown -R $cuser /opt/sliceup
+    cuser=$(whoami)
+    sudo chown -R $cuser /opt/sliceup
 
 #Replace {MASTER_IP} to executables/vector/vector.toml
     sudo sed -i "s/{MASTER_IP}/$masterip/g" /opt/sliceup/executables/vector/vector.toml
@@ -247,7 +248,7 @@ export SSHPASS="$sspass1"
 
         
 #Enable vector to run on port lower than 1024
-           sudo setcap 'cap_net_bind_service=+ep' /usr/bin/vector
+    sudo setcap 'cap_net_bind_service=+ep' /usr/bin/vector
 
 
 #Replace {MASTER_IP} in executables/flink-1.10.0/conf/flink-conf.yaml
@@ -266,14 +267,14 @@ export SSHPASS="$sspass1"
     echo "" > /opt/sliceup/executables/flink-1.10.0/conf/slaves
 
 #Replace Grafana sed
-sudo sed -i "s/{MASTER_IP}/$masterip/" san.cnf
+    sudo sed -i "s/{MASTER_IP}/$masterip/" san.cnf
 
        
 #Grafana Install
     echo -e "\e[96m Installing Grafana.  \e[39m"
-    sudo apt-get install -y adduser libfontconfig1
-    wget https://dl.grafana.com/oss/release/grafana_7.0.4_amd64.deb
-    sudo dpkg -i grafana_7.0.4_amd64.deb
+    sudo yum install wget shadow-utils fontconfig freetype libfreetype.so.6 libfontconfig.so.1 libstdc++.so.6 -y
+    wget https://dl.grafana.com/oss/release/grafana-7.0.4-1.x86_64.rpm
+    sudo yum install grafana-7.0.4-1.x86_64.rpm -y
 
 #Grafana Create Cert
     openssl req -x509 -nodes -days 730 -newkey rsa:2048 -keyout /opt/sliceup/ssl/key.pem -out /opt/sliceup/ssl/cert.pem -config san.cnf
@@ -297,8 +298,8 @@ sudo sed -i "s/{MASTER_IP}/$masterip/" san.cnf
     
 
 ####Begin Master Start#####
-echo -e "\e[96m Installation is complete. Starting Master Service.  \e[39m"
-sleep 2
+    echo -e "\e[96m Installation is complete. Starting Master Service.  \e[39m"
+    sleep 2
 
 ###################Starting the Services#######################3
 #  Grafana Start
@@ -306,7 +307,8 @@ sleep 2
     sudo /bin/systemctl enable grafana-server
     sudo /bin/systemctl start grafana-server
 
-    sudo apt-get install -y jq
+    sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    sudo yum install jq -y
     sudo /bin/systemctl stop grafana-server
     sleep 5
     sudo /bin/systemctl start grafana-server
@@ -319,9 +321,8 @@ sleep 2
     sleep 2
 
 #Enable service at startup
-echo -e "\e[96m Enable Slicemaster service  \e[39m"
-sudo systemctl enable slicemaster
-echo -e "\e[96m Start Slicemaster service  \e[39m"
-sudo systemctl start slicemaster
-echo -e "\e[96m Slicemaster service started. \e[39m"
-
+    echo -e "\e[96m Enable Slicemaster service  \e[39m"
+    sudo systemctl enable slicemaster
+    echo -e "\e[96m Start Slicemaster service  \e[39m"
+    sudo systemctl start slicemaster
+    echo -e "\e[96m Slicemaster service started. \e[39m"
