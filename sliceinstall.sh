@@ -212,6 +212,8 @@
 
     line="host    all             all             $masterip\/32            md5"
     sudo sed -i "s/# IPv4 local connections:/# IPv4 local connections:\n$line/" /var/lib/pgsql/10/data/pg_hba.conf
+    sudo sed -i 's/\(host  *all  *all  *127.0.0.1\/32  *\)ident/\1md5/' /var/lib/pgsql/10/data/pg_hba.conf
+    sudo sed -i 's/\(host  *all  *all  *::1\/128  *\)ident/\1md5/' /var/lib/pgsql/10/data/pg_hba.conf
 
 
     echo -e "\e[96m Install additonal supporting files.  \e[39m"
