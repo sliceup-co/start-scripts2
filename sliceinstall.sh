@@ -160,11 +160,11 @@
     cuser=$(whoami)
     sudo chown -R $cuser /opt/sliceup
 
-   sudo rm workerinstall.sh
+   #sudo rm workerinstall.sh
    sudo rm workerstart.sh
    sudo rm sliceworker.service
    sudo mv masterstart.sh /opt/sliceup/scripts/masterstart.sh
-   sudo mv masterinstall.sh /opt/sliceup/scripts/masterinstall.sh
+   #sudo mv masterinstall.sh /opt/sliceup/scripts/masterinstall.sh
    sudo chmod +x /opt/sliceup/scripts/masterstart.sh
    sudo mv slicemaster.service /etc/systemd/system/slicemaster.service
 	
@@ -220,9 +220,8 @@
     sudo yum install python-devel -y
     sudo yum install python3-devel -y
     sudo yum groupinstall 'Development Tools' -y
-    sudo yum install PyOpenGL libtool autoconf pkgconfig python-pillow qt-devel python-tools python-pyside python2-pyside python36-pyside qt4-devel -y
-    #sudo apt-get install build-essential autoconf libtool pkg-config python-opengl python-pil python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt
-4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev -y
+    sudo yum install PyOpenGL libtool autoconf pkgconfig python-pillow qt-devel python-tools python-pyside python2-pyside python36-pyside qt4-devel PyQt4-devel qt-x11 -y
+    #sudo apt-get install build-essential autoconf libtool pkg-config python-opengl python-pil python-pyrex python-pyside.qtopengl idle-python2.7 qt4-dev-tools qt4-designer libqtgui4 libqtcore4 libqt4-xml libqt4-test libqt4-script libqt4-network libqt4-dbus python-qt4 python-qt4-gl libgle3 python-dev -y
     sudo yum install python3-pip -y
     sudo python3 -m pip install psycopg2
     sudo python3 -m pip install requests
