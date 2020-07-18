@@ -24,7 +24,7 @@
     sudo yum install python-devel -y
     sudo yum install python3-devel -y
     sudo yum groupinstall 'Development Tools' -y
-    sudo yum install PyOpenGL libtool autoconf pkgconfig python-pillow qt-devel -y
+    sudo yum install PyOpenGL libtool autoconf pkgconfig python-pillow qt-devel python-tools python-pyside python2-pyside python36-pyside qt4-devel PyQt4-devel qt-x11 -y
     sudo yum install python3-pip -y
     sudo python3 -m pip install requests 
     sudo python3 -m pip install selenium 

@@ -16,7 +16,7 @@
                     fi
 
 #install sshpas
-   sudo yum install -y sshpass
+    sudo yum install -y sshpass
 
 #Get password for postgres
     echo -e "\e[96m Please enter the password for the database.  \e[39m"
