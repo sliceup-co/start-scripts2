@@ -21,6 +21,7 @@
     sleep 5
     vector --config /opt/sliceup/executables/vector/vector.toml &
     sleep 5
+    systemctl enable postgresql-10
 # Start Cluster
     /opt/sliceup/executables/flink-1.10.0/bin/start-cluster.sh 
 #Wait for task executors to start

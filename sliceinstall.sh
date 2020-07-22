@@ -188,6 +188,8 @@
     sudo yum install postgresql10-server postgresql10-contrib postgresql10-devel -y
     sudo /usr/pgsql-10/bin/postgresql-10-setup initdb
     sudo systemctl start postgresql-10
+    sudo systemctl enable postgresql-10
+
     sudo ln -s /usr/pgsql-10/bin/pg_config /usr/sbin/pg_config
     sleep 10
 
