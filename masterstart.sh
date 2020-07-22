@@ -24,22 +24,23 @@
 # Start Cluster
     /opt/sliceup/executables/flink-1.10.0/bin/start-cluster.sh 
 #Wait for task executors to start
-    echo -e "\e[96m Job initialization started.  \e[39m"
-    echo -e "\e[96m Stage 1/5  \e[39m"
+    echo -e "Job initialization started. "
+    java -cp /opt/sliceup/executables/db-cleaner.jar com.sliceup.dbcleaner.Main /opt/sliceup/executables/conf.ini false    
+    echo -e "Stage 1/5. "
     sleep 30
-    echo -e "\e[96m Stage 2/5  \e[39m"
+    echo -e "Stage 2/5. "
     sleep 30
-    echo -e "\e[96m Stage 3/5  \e[39m"
+    echo -e "Stage 3/5. "
     sleep 30
-​    echo -e "\e[96m Stage 4/5  \e[39m"
+​    echo -e "Stage 4/5. "
     sleep 30
-​​    echo -e "\e[96m Stage 5/5  \e[39m"
-    java -cp /opt/sliceup/executables/db-cleaner.jar com.sliceup.dbcleaner.Main /opt/sliceup/executables/conf.ini &
+​​    echo -e "Stage 5/5. "
+    java -cp /opt/sliceup/executables/db-cleaner.jar com.sliceup.dbcleaner.Main /opt/sliceup/executables/conf.ini true&
     sleep 30
-    echo -e "\e[96m Phase 5/5 of job initialization completed.  \e[39m"
+    echo -e "Phase 5/5 of job initialization completed. "
     /opt/sliceup/executables/flink-1.10.0/bin/flink run /opt/sliceup/executables/log-lines-proc-1.0.jar --init /opt/sliceup/executables/conf.ini
     sleep 5
-    echo -e "\e[96m Flink-job finished executing so we are restarting the job  \e[39m"
-    exit 1    
+    echo -e "Flink-job finished executing so we are restarting the job. "
+    exit 1 
 
 
