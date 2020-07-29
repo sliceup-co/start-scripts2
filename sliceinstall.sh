@@ -316,9 +316,9 @@
     sleep 5
     sudo /bin/systemctl start grafana-server
     sleep 5
-    id=$(curl -X GET -H "Content-Type: application/json" http://admin:admin@127.0.0.1:3000/api/dashboards/uid/kC8AXaZMz | jq .dashboard.id)
+    id=$(curl -k -X GET -H "Content-Type: application/json" https://admin:admin@127.0.0.1:3000/api/dashboards/uid/kC8AXaZMz | jq .dashboard.id)
     echo -e "\e[96m Dashboard ID is $id \e[39m"
-    curl -X PUT -H "Content-Type: application/json" -d '{"theme": "", "homeDashboardId": '$id', "timezone": ""}' http://admin:admin@127.0.0.1:3000/api/org/preferences
+    curl -k -X PUT -H "Content-Type: application/json" -d '{"theme": "", "homeDashboardId": '$id', "timezone": ""}' https://admin:admin@127.0.0.1:3000/api/org/preferences
 
     echo -e "\e[96m Grafana installed successfully. \e[39m"
     sleep 2
