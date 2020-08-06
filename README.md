@@ -3,6 +3,8 @@ This repository is used in conjunction with a separate tarball and you should ha
 
 Ensure that the master node and all worker nodes can communicate to each other freely. In other words, create a firewall rule that allows for communication between all nodes, on all ports and protocols.
 
+Please ensure that all nodes have rsync installed.
+
 The worker nodes should also have ports open for SSH and any ports in your environment used for management of the device / vm. The Master node should be configured the same as the worker node but it should also have TCP port 3000 and any port used to send logs. All logs should be sent to the master node.
 
 On the master node, Clone this repository into the home directory of the username being used to install the system. Move the tarball into the start-scripts directory (do not extract it). Next, run the sliceinstall.sh script. Do not use sudo when executing this command. The script will prompt for sudo when required.
