@@ -3,7 +3,7 @@
     echo -e "\e[96m This script is meant to be run with Centos 7. It might work with higher versions but it hasn't been tested.\e[39m"
     echo -e "\e[96m Please ensure that all servers in the cluster have full access to each other.\e[39m"
     echo -e "\e[96m Make sure that all the worker nodes have the same password. \e[39m"
-    echo -e "\e[96m When complete, go to http://ipaddress_of_master:3000 Default user: admin, password: admin.\e[39m"
+    echo -e "\e[96m When complete, go to http://ipaddress_of_prime:3000 Default user: admin, password: admin.\e[39m"
     echo -e "\e[96m Press Enter to continue. \e[39m"
     read y 
 
@@ -24,13 +24,13 @@
 
 
 #Get node IP info from end user
-    echo -e "\e[96m Enter a comma seperated list of all workernode IP addresses. (This is the master node)"
+    echo -e "\e[96m Enter a comma seperated list of all workernode IP addresses. (This is the prime node)"
     echo -e "Example 192.0.2.1,192.0.2.33,192.0.2.99 \e[39m"
     #read ipaddressin
     IFS=',' read -r -a ipaddresses
 
-# Get IP address of the Master
-    echo -e "\e[96m This device is being configured as the master. Enter the IP address of the interface used to communicate with the worker nodes."
+# Get IP address of the Prime node
+    echo -e "\e[96m This device is being configured as the Prime node. Enter the IP address of the interface used to communicate with the worker nodes."
     echo -e "\e[96m e.g. 192.0.2.100 \e[39m"
     read masterip
 
